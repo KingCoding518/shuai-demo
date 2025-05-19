@@ -94,14 +94,14 @@ public class RedisTestController {
         ops.add("shuai-set", "shuai1", "shuai2", "shuai3", "shuai4", "shuai5");
 
         Set members = ops.members("shuai-set");
-        System.out.println("获取到集合的值："+members);
+        System.out.println("获取到集合的值：" + members);
 
 
-        //两个集合的差集(只属于前一集合的元素)
-        ops.add("set1","1","2","3","5");
-        ops.add("set2","1","2","3","4");
+        // 两个集合的差集(只属于前一集合的元素)
+        ops.add("set1", "1", "2", "3", "5");
+        ops.add("set2", "1", "2", "3", "4");
         Set difference = ops.difference("set1", "set2");
-        System.out.println("集合1和集合2的差集"+difference);
+        System.out.println("集合1和集合2的差集" + difference);
     }
 
     @GetMapping("/zsetTest")
