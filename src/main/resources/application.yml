@@ -16,6 +16,12 @@ spring:
     port: 6379
     password: 123456
     database: 1
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    virtual-host: /shuai
+    username: shuai
+    password: shuai
 
 # MyBatis Plus 的配置项
 mybatis-plus:
