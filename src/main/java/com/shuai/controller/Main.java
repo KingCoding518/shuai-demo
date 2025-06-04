@@ -4,9 +4,7 @@ import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.config.Configure;
 import com.deepoove.poi.config.ConfigureBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuai.domain.dto.DeepSeekHotIssueDTO;
-import com.shuai.domain.dto.DeepSeekHotItemDTO;
-import com.shuai.domain.dto.MonthlyReportDTO;
+import com.shuai.domain.dto.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -253,7 +251,6 @@ public class Main {
         data.put("complainNums", 30);
         data.put("otherNums", 26);
 
-
         List<Map<String, Object>> hotIssueList = new ArrayList<>();
         for (DeepSeekHotIssueDTO hotIssue : dto1.getHotIssueList()) {
             Map<String, Object> hotIssueMap = new HashMap<>();
@@ -271,6 +268,44 @@ public class Main {
             hotIssueList.add(hotIssueMap);
         }
         data.put("hotIssueList", hotIssueList);
+
+        List<Map<String, Object>> sensitiveIssueList = new ArrayList<>();
+        for (DeepSeekSensitiveIssueDTO sensitiveIssue : dto1.getSensitiveIssueList()) {
+            Map<String, Object> sensitiveIssueMap = new HashMap<>();
+            sensitiveIssueMap.put("sensitiveQuestion", sensitiveIssue.getSensitiveQuestion());
+
+            List<Map<String, Object>> items = new ArrayList<>();
+            for (DeepSeekSensitiveItemDTO item : sensitiveIssue.getItems()) {
+                Map<String, Object> itemMap = new HashMap<>();
+                itemMap.put("subSensitiveQuestion", item.getSubSensitiveQuestion());
+                itemMap.put("subSensitiveContent", item.getSubSensitiveContent());
+                items.add(itemMap);
+            }
+            sensitiveIssueMap.put("items", items);
+
+            sensitiveIssueList.add(sensitiveIssueMap);
+        }
+        data.put("sensitiveIssueList", sensitiveIssueList);
+
+
+        List<Map<String, Object>> outburstIssueList = new ArrayList<>();
+        for (DeepSeekOutburstIssueDTO outburstIssue : dto1.getOutburstIssueList()) {
+            Map<String, Object> outburstIssueMap = new HashMap<>();
+            outburstIssueMap.put("outburstQuestion", outburstIssue.getOutburstQuestion());
+
+            List<Map<String, Object>> items = new ArrayList<>();
+            for (DeepSeekOutburstItemDTO item : outburstIssue.getItems()) {
+                Map<String, Object> itemMap = new HashMap<>();
+                itemMap.put("subOutburstQuestion", item.getSubOutburstQuestion());
+                itemMap.put("subOutburstContent", item.getSubOutburstContent());
+                items.add(itemMap);
+            }
+            outburstIssueMap.put("items", items);
+
+            sensitiveIssueList.add(outburstIssueMap);
+        }
+        data.put("sensitiveIssueList", sensitiveIssueList);
+
         ConfigureBuilder builder = Configure.builder();
         builder.useSpringEL();
         XWPFTemplate template = XWPFTemplate.compile("E:\\opt\\sucheng\\Downloads\\local\\test\\月报2.docx", builder.build()).render(data);
