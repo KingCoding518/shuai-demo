@@ -11,6 +11,7 @@ import com.shuai.mapper.SysAddressMapper;
 import com.shuai.service.SysAddressService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -94,6 +95,18 @@ public class SysAddressServiceImpl implements SysAddressService {
             }
         }
         return List.of();
+    }
+
+    @Override
+    @Async
+    public void testAscn() {
+        log.info("舆情建档开始...");
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        log.info("====舆情建档结束...");
     }
 
     public List<SysAddressVO> buildTree(List<SysAddressVO> list, Long rootId) {

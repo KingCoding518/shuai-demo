@@ -1,5 +1,5 @@
 server:
-  port: 9090
+  port: 9099
 
 spring:
   datasource:
@@ -11,17 +11,18 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
-  redis:
-    host: 127.0.0.1
-    port: 6379
-    password: 123456
-    database: 1
   rabbitmq:
     host: 127.0.0.1
     port: 5672
     virtual-host: /shuai
     username: shuai
     password: shuai
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: 123456
+      database: 1
 
 # MyBatis Plus 的配置项
 mybatis-plus:

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface SysAddressService {
     List<SysAddressVO> getAddressTree(SysAddressQueryDTO queryDTO);
+
+    void testAscn();
 }
