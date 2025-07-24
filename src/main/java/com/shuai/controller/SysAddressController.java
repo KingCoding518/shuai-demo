@@ -27,4 +27,9 @@ public class SysAddressController {
     public List<SysAddressVO> getAddressTree(SysAddressQueryDTO queryDTO) {
         return sysAddressService.getAddressTree(queryDTO);
     }
+
+    @GetMapping("/testAscn")
+    public void testAscn() {
+        sysAddressService.testAscn();
+    }
 }
