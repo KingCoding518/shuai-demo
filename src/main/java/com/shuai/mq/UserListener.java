@@ -33,10 +33,10 @@ public class UserListener {
             value = @Queue(name = "user.test.queue", durable = "true"),
             exchange = @Exchange(name = MqConstants.Exchange.USER_EXCHANGE, type = ExchangeTypes.TOPIC),
             key = MqConstants.Key.USER_KEY
-    ))
+    ), errorHandler = "mqErrorHandler")
     public void listenWriteReplyMessage(User user, Message message) throws Exception {
         // 获取消息ID
-        String messageId = (String) message.getMessageProperties().getMessageId();
+        String messageId = message.getMessageProperties().getMessageId();
         MqMessageConsumed mqMessageConsumed = mqMessageConsumedService.selectMqMessageConsumed(messageId);
         if (mqMessageConsumed != null && mqMessageConsumed.getStatus() == 1) {
             return;
@@ -52,11 +52,10 @@ public class UserListener {
 
         try {
             Thread.sleep(30000);
-            System.out.println(1/0);
+            // System.out.println(1/0);
         } catch (Exception e) {
             mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 2);
-            // throw new Exception(e);
-            throw new AmqpRejectAndDontRequeueException("用户消息消费失败，放到指定错误队列中...");
+            throw new AmqpRejectAndDontRequeueException("用户消息消费失败，放到指定错误队列中...", e);
         }
         log.info("消息处理结束...");
         mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 1);

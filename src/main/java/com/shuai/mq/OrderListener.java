@@ -33,7 +33,7 @@ public class OrderListener {
             value = @Queue(name = "order.test.queue", durable = "true"),
             exchange = @Exchange(name = MqConstants.Exchange.ORDER_EXCHANGE, type = ExchangeTypes.TOPIC),
             key = MqConstants.Key.ORDER_KEY
-    ))
+    ), errorHandler = "mqErrorHandler")
     public void listenOrderMessage(Order order, Message message) {
         // 获取消息ID
         String messageId = message.getMessageProperties().getMessageId();
@@ -51,10 +51,10 @@ public class OrderListener {
         mqMessageConsumedService.saveMqMessageConsumed(mqMessageConsumed1);
 
         try {
-            Thread.sleep(3000);
-            System.out.println(1/0);
-        } catch (InterruptedException e) {
-            throw new AmqpRejectAndDontRequeueException("消息处理异常...");
+            Thread.sleep(30000);
+            // System.out.println(1/0);
+        } catch (Exception e) {
+            throw new AmqpRejectAndDontRequeueException("消息处理异常...", e);
         }
         log.info("消息处理结束...");
         mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 1);
