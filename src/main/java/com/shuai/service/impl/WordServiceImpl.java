@@ -1,5 +1,7 @@
 package com.shuai.service.impl;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.deepoove.poi.XWPFTemplate;
 import com.deepoove.poi.config.Configure;
 import com.deepoove.poi.config.ConfigureBuilder;
@@ -74,11 +76,11 @@ public class WordServiceImpl implements WordService {
                 "}\n" +
                 "```";
         String json = result.replaceAll("```", "").replaceAll("json", "");
-        ObjectMapper mapper = new ObjectMapper();
-        MonthlyReportDTO resultDto = mapper.readValue(json, MonthlyReportDTO.class);
 
-
+        // 使用Hutool JSONUtil将json字符串转为Map
+       JSONObject jsonObject = JSONUtil.parseObj(json);
         Map<String, Object> data = new HashMap<>();
+        // 像下面的这些魔法字符串可以抽成常量方便管理 2025/7/30 7:06 By 少帅
         data.put("year", 11);
         data.put("month", 11);
         data.put("period", 11);
@@ -89,77 +91,18 @@ public class WordServiceImpl implements WordService {
         data.put("consultNums", 11);
         data.put("complainNums", 11);
         data.put("otherNums", 11);
-        data.put("generalCondition", resultDto.getGeneralCondition());
+        data.put("generalCondition", jsonObject.getStr("generalCondition"));
 
-        // 展示热点事件
-        List<Map<String, Object>> hotIssueList = new ArrayList<>();
-        for (DeepSeekHotIssueDTO hotIssue : resultDto.getHotIssueList()) {
-            Map<String, Object> hotIssueMap = new HashMap<>();
-            hotIssueMap.put("hotQuestion", hotIssue.getHotQuestion());
-
-            List<Map<String, Object>> items = new ArrayList<>();
-            for (DeepSeekHotItemDTO item : hotIssue.getItems()) {
-                Map<String, Object> itemMap = new HashMap<>();
-                itemMap.put("subHotQuestion", item.getSubHotQuestion());
-                itemMap.put("subHotContent", item.getSubHotContent());
-                items.add(itemMap);
-            }
-            hotIssueMap.put("items", items);
-            hotIssueList.add(hotIssueMap);
-        }
-        data.put("hotIssueList", hotIssueList);
-
-        // 展示敏感事件
-        List<Map<String, Object>> sensitiveIssueList = new ArrayList<>();
-        for (DeepSeekSensitiveIssueDTO sensitiveIssue : resultDto.getSensitiveIssueList()) {
-            Map<String, Object> sensitiveIssueMap = new HashMap<>();
-            sensitiveIssueMap.put("sensitiveQuestion", sensitiveIssue.getSensitiveQuestion());
-
-            List<Map<String, Object>> items = new ArrayList<>();
-            for (DeepSeekSensitiveItemDTO item : sensitiveIssue.getItems()) {
-                Map<String, Object> itemMap = new HashMap<>();
-                itemMap.put("subSensitiveQuestion", item.getSubSensitiveQuestion());
-                itemMap.put("subSensitiveContent", item.getSubSensitiveContent());
-                items.add(itemMap);
-            }
-            sensitiveIssueMap.put("items", items);
-            sensitiveIssueList.add(sensitiveIssueMap);
-        }
-        data.put("sensitiveIssueList", sensitiveIssueList);
-
-        // 展示突发事件
-        List<Map<String, Object>> outburstIssueList = new ArrayList<>();
-        for (DeepSeekOutburstIssueDTO outburstIssue : resultDto.getOutburstIssueList()) {
-            Map<String, Object> outburstIssueMap = new HashMap<>();
-            outburstIssueMap.put("outburstQuestion", outburstIssue.getOutburstQuestion());
-
-            List<Map<String, Object>> items = new ArrayList<>();
-            for (DeepSeekOutburstItemDTO item : outburstIssue.getItems()) {
-                Map<String, Object> itemMap = new HashMap<>();
-                itemMap.put("subOutburstQuestion", item.getSubOutburstQuestion());
-                itemMap.put("subOutburstContent", item.getSubOutburstContent());
-                items.add(itemMap);
-            }
-            outburstIssueMap.put("items", items);
-            sensitiveIssueList.add(outburstIssueMap);
-        }
-        data.put("outburstIssueList", outburstIssueList);
-
-        // 工作建议
-        List<Map<String, Object>> suggestions = new ArrayList<>();
-        for (DeepSeekSuggestionDTO suggestion : resultDto.getSuggestions()) {
-            Map<String, Object> suggestionMap = new HashMap<>();
-            suggestionMap.put("suggestionTitle", suggestion.getSuggestionTitle());
-            suggestionMap.put("suggestionContent", suggestion.getSuggestionContent());
-            suggestions.add(suggestionMap);
-        }
-        data.put("suggestions", suggestions);
-        ConfigureBuilder builder = Configure.builder();
-        builder.useSpringEL();
-        // 渲染模板
-        XWPFTemplate template = XWPFTemplate.compile("F:\\test\\月报.docx", builder.build()).render(data);
-        // XWPFTemplate template = XWPFTemplate.compile("F:\\test\\日报.docx").render(data);
-        template.writeToFile("F:\\test\\月报111.docx");
+        // 热点事件
+        data.put("hotIssueList", jsonObject.get("hotIssueList"));
+        // 敏感事件
+        data.put("sensitiveIssueList", jsonObject.get("sensitiveIssueList"));
+        // 突发事件
+        data.put("outburstIssueList", jsonObject.get("outburstIssueList"));
+        // 建议
+        data.put("suggestions", jsonObject.get("suggestions"));
+        // 后续可直接用data这个Map进行模板渲染等操作
+        System.out.println(data);
     }
 
     public static void main(String[] args) throws IOException {
