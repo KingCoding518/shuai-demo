@@ -112,12 +112,18 @@ public class RabbitMqHelper {
 
     public <T> void sendHeaderMessage(String exchange, String routingKey, T t, Map<String, Object> headers) {
         log.debug("准备发送消息，exchange：{}， RoutingKey：{}， message：{}", exchange, routingKey,t);
-        MessageProperties props = new MessageProperties();
-        if (headers != null) {
-            headers.forEach(props::setHeader);
-        }
-        Message message = new Message(JSONUtil.toJsonStr(t).getBytes(StandardCharsets.UTF_8), props);
-        rabbitTemplate.send(exchange, routingKey, message);
+        // MessageProperties props = new MessageProperties();
+        // if (headers != null) {
+        //     headers.forEach(props::setHeader);
+        // }
+        // Message message = new Message(JSONUtil.toJsonStr(t).getBytes(StandardCharsets.UTF_8), props);
+        // rabbitTemplate.send(exchange, routingKey, message);
+        rabbitTemplate.convertAndSend(exchange, routingKey, t, message -> {
+            if (headers != null) {
+                headers.forEach(message.getMessageProperties()::setHeader);
+            }
+            return message;
+        });
     }
 
     public Message receive(String errorQueueTemplate) {

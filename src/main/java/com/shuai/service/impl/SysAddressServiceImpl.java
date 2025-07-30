@@ -111,13 +111,16 @@ public class SysAddressServiceImpl implements SysAddressService {
         }
         log.info("====舆情建档结束...");
 
+        List<User> list = new ArrayList<>();
         for (int i = 0; i < 40; i++) {
-            rabbitMqHelper.send(
-                    MqConstants.Exchange.USER_EXCHANGE,
-                    MqConstants.Key.USER_KEY,
-                    new User()
-                            .setId(i)
-                            .setName("张三:" + i));
+            User user = new User().setId(i).setName("张三:" + i);
+            list.add(user);
+            // rabbitMqHelper.send(
+            //         MqConstants.Exchange.USER_EXCHANGE,
+            //         MqConstants.Key.USER_KEY,
+            //         new User()
+            //                 .setId(i)
+            //                 .setName("张三:" + i));
             // rabbitMqHelper.send(
             //         MqConstants.Exchange.ORDER_EXCHANGE,
             //         MqConstants.Key.ORDER_KEY,
@@ -125,6 +128,17 @@ public class SysAddressServiceImpl implements SysAddressService {
             //                 .setId(i)
             //                 .setOrderName(UUID.randomUUID().toString()));
         }
+
+        List<User> list1 = new ArrayList<>();
+        for (int i = 0; i < 50; i++) {
+            User user = new User().setId(i).setName("张思:" + i);
+            list1.add(user);
+        }
+
+        rabbitMqHelper.send(
+                MqConstants.Exchange.USER_EXCHANGE,
+                MqConstants.Key.USER_KEY,
+                list1);
     }
 
     public List<SysAddressVO> buildTree(List<SysAddressVO> list, Long rootId) {

@@ -3,7 +3,6 @@ package com.shuai.mq;
 import cn.hutool.json.JSONUtil;
 import com.shuai.config.mq.RabbitMqHelper;
 import com.shuai.constants.MqConstants;
-import com.shuai.domain.po.MqMessageConsumed;
 import com.shuai.domain.po.User;
 import com.shuai.service.MqMessageConsumedService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static com.shuai.constants.MqConstants.Queue.ERROR_QUEUE_TEMPLATE;
@@ -36,36 +35,75 @@ public class UserListener {
     private final MqMessageConsumedService mqMessageConsumedService;
     private final RabbitMqHelper rabbitMqHelper;
 
+    // @RabbitListener(bindings = @QueueBinding(
+    //         value = @Queue(name = "user.test.queue", durable = "true"),
+    //         exchange = @Exchange(name = MqConstants.Exchange.USER_EXCHANGE, type = ExchangeTypes.TOPIC),
+    //         key = MqConstants.Key.USER_KEY
+    // ), errorHandler = "mqErrorHandler")
+    // public void listenWriteReplyMessage(User user, Message message) throws Exception {
+    //     // // 获取消息ID
+    //     // String messageId = message.getMessageProperties().getMessageId();
+    //     // MqMessageConsumed mqMessageConsumed = mqMessageConsumedService.selectMqMessageConsumed(messageId);
+    //     // if (mqMessageConsumed != null && mqMessageConsumed.getStatus() == 1) {
+    //     //     return;
+    //     // }
+    //     // log.info("mq接收到消息啦, 消息ID: {}, 处理的消息是：{}", messageId, user);
+    //     // MqMessageConsumed mqMessageConsumed1 = new MqMessageConsumed()
+    //     //         .setMessageId(messageId)
+    //     //         .setStatus(0)
+    //     //         .setCreateTime(LocalDateTime.now())
+    //     //         .setUpdateTime(LocalDateTime.now());
+    //     //
+    //     // mqMessageConsumedService.saveMqMessageConsumed(mqMessageConsumed1);
+    //
+    //     try {
+    //         Thread.sleep(3000);
+    //         System.out.println(1/0);
+    //     } catch (Exception e) {
+    //         // mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 2);
+    //         throw new AmqpRejectAndDontRequeueException("用户消息消费失败，放到指定错误队列中...", e);
+    //     }
+    //     log.info("消息处理结束...");
+    //     // mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 1);
+    // }
+
+    /**
+     * 测试消费数组
+     *
+     * @param user
+     * @param message
+     * @throws Exception
+     */
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(name = "user.test.queue", durable = "true"),
             exchange = @Exchange(name = MqConstants.Exchange.USER_EXCHANGE, type = ExchangeTypes.TOPIC),
             key = MqConstants.Key.USER_KEY
     ), errorHandler = "mqErrorHandler")
-    public void listenWriteReplyMessage(User user, Message message) throws Exception {
-        // 获取消息ID
-        String messageId = message.getMessageProperties().getMessageId();
-        MqMessageConsumed mqMessageConsumed = mqMessageConsumedService.selectMqMessageConsumed(messageId);
-        if (mqMessageConsumed != null && mqMessageConsumed.getStatus() == 1) {
-            return;
-        }
-        log.info("mq接收到消息啦, 消息ID: {}, 处理的消息是：{}", messageId, user);
-        MqMessageConsumed mqMessageConsumed1 = new MqMessageConsumed()
-                .setMessageId(messageId)
-                .setStatus(0)
-                .setCreateTime(LocalDateTime.now())
-                .setUpdateTime(LocalDateTime.now());
-
-        mqMessageConsumedService.saveMqMessageConsumed(mqMessageConsumed1);
+    public void listenWriteReplyMessage(List<User> user, Message message) throws Exception {
+        // // 获取消息ID
+        // String messageId = message.getMessageProperties().getMessageId();
+        // MqMessageConsumed mqMessageConsumed = mqMessageConsumedService.selectMqMessageConsumed(messageId);
+        // if (mqMessageConsumed != null && mqMessageConsumed.getStatus() == 1) {
+        //     return;
+        // }
+        // log.info("mq接收到消息啦, 消息ID: {}, 处理的消息是：{}", messageId, user);
+        // MqMessageConsumed mqMessageConsumed1 = new MqMessageConsumed()
+        //         .setMessageId(messageId)
+        //         .setStatus(0)
+        //         .setCreateTime(LocalDateTime.now())
+        //         .setUpdateTime(LocalDateTime.now());
+        //
+        // mqMessageConsumedService.saveMqMessageConsumed(mqMessageConsumed1);
 
         try {
             Thread.sleep(3000);
-            // System.out.println(1/0);
+            System.out.println(1/0);
         } catch (Exception e) {
-            mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 2);
+            // mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 2);
             throw new AmqpRejectAndDontRequeueException("用户消息消费失败，放到指定错误队列中...", e);
         }
         log.info("消息处理结束...");
-        mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 1);
+        // mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 1);
     }
 
     public void consumeOrderKnowledgeQueue() {
@@ -77,13 +115,13 @@ public class UserListener {
             }
             try {
                 String json = new String(message.getBody(), StandardCharsets.UTF_8);
-                User user = JSONUtil.toBean(json, User.class);
+                List<User> list = JSONUtil.toList(JSONUtil.parseArray(json), User.class);
                 // 获取原 headers
                 Map<String, Object> headers = message.getMessageProperties().getHeaders();
                 rabbitMqHelper.sendHeaderMessage(
                         MqConstants.Exchange.USER_EXCHANGE,
                         MqConstants.Key.USER_KEY,
-                        user,
+                        list,
                         headers);
             } catch (Exception e) {
                 // 处理异常
