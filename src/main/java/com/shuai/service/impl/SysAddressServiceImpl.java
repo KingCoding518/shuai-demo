@@ -7,8 +7,8 @@ import com.shuai.config.mq.RabbitMqHelper;
 import com.shuai.constants.MqConstants;
 import com.shuai.convert.SysAddressConvert;
 import com.shuai.domain.dto.SysAddressQueryDTO;
-import com.shuai.domain.po.Order;
 import com.shuai.domain.po.SysAddress;
+import com.shuai.domain.po.User;
 import com.shuai.domain.vo.SysAddressVO;
 import com.shuai.mapper.SysAddressMapper;
 import com.shuai.service.SysAddressService;
@@ -111,19 +111,19 @@ public class SysAddressServiceImpl implements SysAddressService {
         }
         log.info("====舆情建档结束...");
 
-        for (int i = 0; i < 100; i++) {
-            // rabbitMqHelper.send(
-            //         MqConstants.Exchange.USER_EXCHANGE,
-            //         MqConstants.Key.USER_KEY,
-            //         new User()
-            //                 .setId(i)
-            //                 .setName("张三:" + i));
+        for (int i = 0; i < 40; i++) {
             rabbitMqHelper.send(
-                    MqConstants.Exchange.ORDER_EXCHANGE,
-                    MqConstants.Key.ORDER_KEY,
-                    new Order()
+                    MqConstants.Exchange.USER_EXCHANGE,
+                    MqConstants.Key.USER_KEY,
+                    new User()
                             .setId(i)
-                            .setOrderName(UUID.randomUUID().toString()));
+                            .setName("张三:" + i));
+            // rabbitMqHelper.send(
+            //         MqConstants.Exchange.ORDER_EXCHANGE,
+            //         MqConstants.Key.ORDER_KEY,
+            //         new Order()
+            //                 .setId(i)
+            //                 .setOrderName(UUID.randomUUID().toString()));
         }
     }
 

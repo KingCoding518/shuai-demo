@@ -32,7 +32,7 @@ public interface MqConstants {
         String PROMOTION_EXCHANGE = "promotion.topic";
     }
     interface Queue {
-        String ERROR_QUEUE_TEMPLATE = "error.{}.queue";
+        String ERROR_QUEUE_TEMPLATE = "error.shuai-demo.queue";
     }
     interface Key{
         /*课程有关的 RoutingKey*/

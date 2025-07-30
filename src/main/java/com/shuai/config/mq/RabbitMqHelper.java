@@ -1,14 +1,19 @@
 package com.shuai.config.mq;
 
 import cn.hutool.core.lang.UUID;
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessagePostProcessor;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -105,4 +110,17 @@ public class RabbitMqHelper {
         sendAsyn(exchange, routingKey, t, null);
     }
 
+    public <T> void sendHeaderMessage(String exchange, String routingKey, T t, Map<String, Object> headers) {
+        log.debug("准备发送消息，exchange：{}， RoutingKey：{}， message：{}", exchange, routingKey,t);
+        MessageProperties props = new MessageProperties();
+        if (headers != null) {
+            headers.forEach(props::setHeader);
+        }
+        Message message = new Message(JSONUtil.toJsonStr(t).getBytes(StandardCharsets.UTF_8), props);
+        rabbitTemplate.send(exchange, routingKey, message);
+    }
+
+    public Message receive(String errorQueueTemplate) {
+        return rabbitTemplate.receive(errorQueueTemplate);
+    }
 }

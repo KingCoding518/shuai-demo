@@ -1,5 +1,7 @@
 package com.shuai.mq;
 
+import cn.hutool.json.JSONUtil;
+import com.shuai.config.mq.RabbitMqHelper;
 import com.shuai.constants.MqConstants;
 import com.shuai.domain.po.MqMessageConsumed;
 import com.shuai.domain.po.User;
@@ -15,7 +17,11 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Map;
+
+import static com.shuai.constants.MqConstants.Queue.ERROR_QUEUE_TEMPLATE;
 
 /**
  * @Author: KingCoding
@@ -28,6 +34,7 @@ import java.time.LocalDateTime;
 public class UserListener {
 
     private final MqMessageConsumedService mqMessageConsumedService;
+    private final RabbitMqHelper rabbitMqHelper;
 
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(name = "user.test.queue", durable = "true"),
@@ -51,7 +58,7 @@ public class UserListener {
         mqMessageConsumedService.saveMqMessageConsumed(mqMessageConsumed1);
 
         try {
-            Thread.sleep(30000);
+            Thread.sleep(3000);
             // System.out.println(1/0);
         } catch (Exception e) {
             mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 2);
@@ -59,5 +66,28 @@ public class UserListener {
         }
         log.info("消息处理结束...");
         mqMessageConsumedService.updateMqMessageConsumed(mqMessageConsumed1.getId(), 1);
+    }
+
+    public void consumeOrderKnowledgeQueue() {
+        while (true) {
+            // 拉取一条消息
+            Message message = rabbitMqHelper.receive(ERROR_QUEUE_TEMPLATE);
+            if (message == null) {
+                break;
+            }
+            try {
+                String json = new String(message.getBody(), StandardCharsets.UTF_8);
+                User user = JSONUtil.toBean(json, User.class);
+                // 获取原 headers
+                Map<String, Object> headers = message.getMessageProperties().getHeaders();
+                rabbitMqHelper.sendHeaderMessage(
+                        MqConstants.Exchange.USER_EXCHANGE,
+                        MqConstants.Key.USER_KEY,
+                        user,
+                        headers);
+            } catch (Exception e) {
+                // 处理异常
+            }
+        }
     }
 }
