@@ -36,9 +36,9 @@ public class MqConfig implements EnvironmentAware{
     private String defaultErrorRoutingKey;
     private String defaultErrorQueue;
 
-    @Bean(name = "rabbitListenerContainerFactory")
-    @ConditionalOnProperty(prefix = "spring.rabbitmq.listener", name = "type", havingValue = "simple",
-            matchIfMissing = true)
+    // @Bean(name = "rabbitListenerContainerFactory")
+    // @ConditionalOnProperty(prefix = "spring.rabbitmq.listener", name = "type", havingValue = "simple",
+    //         matchIfMissing = true)
     SimpleRabbitListenerContainerFactory simpleRabbitListenerContainerFactory(
             SimpleRabbitListenerContainerFactoryConfigurer configurer, ConnectionFactory connectionFactory,
             ObjectProvider<ContainerCustomizer<SimpleMessageListenerContainer>> simpleContainerCustomizer) {

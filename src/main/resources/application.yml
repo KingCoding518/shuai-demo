@@ -32,7 +32,18 @@ spring:
       port: 6379
       password: 123456
       database: 1
-
+  # ai相关配置
+  ai:
+    openai:
+      base-url: https://api.deepseek.com
+      api-key: sk-fe7cb56bc28241f6afa6220d01c52541
+      chat:
+        base-url: https://api.deepseek.com
+        api-key: sk-fe7cb56bc28241f6afa6220d01c52541
+        options:
+          model: deepseek-chat
+          top-p: 0.3
+          temperature: 0.1
 # MyBatis Plus 的配置项
 mybatis-plus:
   configuration:
