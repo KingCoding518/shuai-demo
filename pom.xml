@@ -24,6 +24,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.51.0</version>
+        </dependency>
         <!--引入AI相关依赖-->
         <dependency>
             <groupId>org.springframework.ai</groupId>
