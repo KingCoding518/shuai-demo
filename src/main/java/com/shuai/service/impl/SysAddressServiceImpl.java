@@ -141,6 +141,18 @@ public class SysAddressServiceImpl implements SysAddressService {
                 list1);
     }
 
+    @Override
+    public void test1(List<String> names) {
+        List<SysAddress> sysAddressList = sysAddressMapper.selectAddressList(names);
+        System.err.println(sysAddressList);
+    }
+
+    @Override
+    public void test2(Set<String> names) {
+        List<SysAddress> sysAddressList = sysAddressMapper.selectAddressList(names);
+        System.err.println(sysAddressList);
+    }
+
     public List<SysAddressVO> buildTree(List<SysAddressVO> list, Long rootId) {
         return TreeUtil.build(
                 list,

@@ -4,11 +4,10 @@ import com.shuai.domain.dto.SysAddressQueryDTO;
 import com.shuai.domain.vo.SysAddressVO;
 import com.shuai.service.SysAddressService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Author: KingCoding
@@ -32,4 +31,15 @@ public class SysAddressController {
     public void testAscn() {
         sysAddressService.testAscn();
     }
+
+    @PostMapping("/test1")
+    public void test1(@RequestBody List<String> names) {
+        sysAddressService.test1(names);
+    }
+
+    @PostMapping("/test2")
+    public void test1(@RequestBody Set<String> names) {
+        sysAddressService.test2(names);
+    }
+
 }
