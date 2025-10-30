@@ -2,6 +2,7 @@ package com.shuai.config;
 
 import com.shuai.service.ReportGenerateService;
 import com.shuai.service.ReportQueueService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2025/10/24
  * @Description:
  */
+@Slf4j
 @Component
 public class ReportConsumer implements InitializingBean {
     private static final String QUEUE_KEY = "report:queue";
@@ -35,12 +37,11 @@ public class ReportConsumer implements InitializingBean {
     private void consumeLoop() {
         while (true) {
             try {
-                // 阻塞等待新任务 (0 表示永久阻塞)
-                String taskId = redisTemplate.opsForList()
-                        .leftPop(QUEUE_KEY, 0, TimeUnit.SECONDS);
+                // 每 10 秒阻塞一次（防止连接被 Redis 或中间件断开）
+                String taskId = redisTemplate.opsForList().leftPop(QUEUE_KEY, 10, TimeUnit.SECONDS);
 
                 if (taskId == null) continue;
-
+                log.info("报告生成开始...");
                 // 更新状态
                 reportQueueService.updateStatus(taskId, "RUNNING", null, null);
 
